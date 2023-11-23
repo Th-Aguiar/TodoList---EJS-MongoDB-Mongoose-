@@ -1,0 +1,23 @@
+<%- include('header'); -%>
+        <div class="container-form">
+            
+            <h1> <%= today %> </h1>
+            <h3> <%= listTittle %> </h3>
+            <div class="box">
+                
+                <% for(let i = 0; i < newListItem.length; i++){ %>
+                    <div class="item">
+                        <input type="checkbox">
+                        <p> <%= newListItem[i] %> </p>
+                    </div>
+                <% } %>
+                
+            </div>
+
+            <form class="form" action="/" method="post">
+                <input type="text" name="todoInput" id="todo-input" placeholder="Digite seu TODO">
+                <button type="submit" name="button" value=<%= listTittle %>>Enviar</button>
+            </form>
+    
+        </div>
+<%- include ('footer') -%>
