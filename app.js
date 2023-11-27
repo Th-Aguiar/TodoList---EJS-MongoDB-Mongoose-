@@ -33,7 +33,7 @@ app.use(express.static(path.join(__dirname + '/public')));
 //Configuração EJS
 app.set('view engine', 'ejs');
 
-//Rota principal
+//Renderizar a página
 app.get('/', async (req, res) => {
 
     try {
@@ -60,20 +60,19 @@ app.get('/', async (req, res) => {
 
 })
 
-
-//Post Home
+//Adicionar item
 app.post('/', async (req, res) => {
      
     try {
         //Armazenamento dos dados do corpo da requisição
-        const data = req.body.todoInput;
-        const debug = req.body
-        const buttonValue = req.body.button;
+        const dataInput = req.body.todoInput;
+        
         //Vendo o que está chegando nos dados
+        const debug = req.body
         console.log(debug)
 
         //Enviando dados para o Banco de dados.
-        await Items.create({ name: data });
+        await Items.create({ name: dataInput });
 
         //Após inserção dos dados, redireciona para a pagina principal
         res.redirect('/');
@@ -85,6 +84,34 @@ app.post('/', async (req, res) => {
     } 
 })
 
+//Deletar itens
+app.post('/delete', async (req,res) => {
+    try {
+        //Captura do id do Input(Checkbox)
+        const idItemChecked = req.body.checkbox;
+        const itemRemoved = await Items.findByIdAndDelete({_id: idItemChecked});
+        
+        //Procurar ID e deletar no banco de dados e validação
+        if(!itemRemoved){
+
+            console.log(`${itemRemoved} não foi encontrado, ocorreu algum erro e verificaremos.`);
+
+        } else {
+
+            //Redirecionamento da pagina após a deletação
+            console.log('item deletado com sucesso');
+            res.redirect('/');
+
+        }
+        
+  
+    } catch (error) {
+        console.log('erro na hora de deletar o item do banco de dados', error);
+    }
+
+})
+
+//Levantamento do servidor
 app.listen(port, () => {
     console.log(`Servidor rodando na porta ${port}`);
 })
