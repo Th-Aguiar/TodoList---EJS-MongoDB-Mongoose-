@@ -8,8 +8,10 @@
                 <% newListItem.forEach( obj => { %>
                     <form action="/delete" method="post">
                         <div class="item">
+
                             <input type="checkbox" name="checkbox" value="<%= obj._id %>" onchange="this.form.submit()">
-                            <p> <%= obj.name %> </p>
+                            <a href=" /<%= obj._id %> " value="<%= obj.name %>" > <%= obj.name %> </a>
+                                     
                         </div>
                     </form>
                 <% }) %>

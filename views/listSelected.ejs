@@ -1,0 +1,18 @@
+<%- include('header'); -%>
+
+    <div class="container-form">
+                
+        <h1> <%= today %> </h1>
+        <h3> <%= listTittle %> </h3>
+        
+
+        <form class="form" action="/" method="post">
+            <input type="text" name="todoInput" id="todo-input" placeholder="Digite seu TODO">
+            <button type="submit" name="button" value=<%= listTittle %>>Enviar</button>
+        </form>
+
+        <button >
+            <a href="/">Voltar</a>
+        </button>
+
+<%- include('footer'); -%>

@@ -111,6 +111,32 @@ app.post('/delete', async (req,res) => {
 
 })
 
+//Endereço dinâmico
+app.get('/:listSelected', async (req, res) => {
+    try {
+        //Captura do parametro
+        const paramCatched = req.params.listSelected;
+        console.log(paramCatched);
+    
+        //pesquisa da coleção no banco de dados
+        const collection = await Items.findById({_id: paramCatched});
+        console.log(collection);
+    
+        //Chamada da função getDate
+        const today = date.getDate();
+    
+        res.render("listSelected", {
+            today: today,
+            listTittle: collection.name
+        })
+        
+    } catch (error) {
+        console.log('algum erro ocorreu');
+        mongoose.connection.close() 
+    }
+})
+
+
 //Levantamento do servidor
 app.listen(port, () => {
     console.log(`Servidor rodando na porta ${port}`);
