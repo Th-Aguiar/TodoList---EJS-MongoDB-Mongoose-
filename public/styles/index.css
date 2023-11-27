@@ -57,6 +57,11 @@ input[type="checkbox"]{
     margin-right: 20px;
 }
 
+input[type="checkbox"]:checked + p{
+    text-decoration: line-through red;
+}
+
+
 .form{
     display: flex;
     justify-content: center;

@@ -12,7 +12,7 @@ const date = require(__dirname + "/modules/date.js");
 mongoose.connect('mongodb://127.0.0.1:27017/todolistDb');
 
 //Definição dos Schemas
-const todoSchema = new mongoose.Schema({
+const itemsSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true
@@ -20,15 +20,7 @@ const todoSchema = new mongoose.Schema({
 })
 
 //Criação da coleção
-const TodoList = mongoose.model('todoList', todoSchema);
-
-//Criação de um Objeto requerido.
-const todo = new TodoList({
-    name:"Ler a bíblia"
-})
-//Variavel de armazenamento
-let listItems = [];
-let workList = [];
+const Items = mongoose.model('Items', itemsSchema);
 
 
 //Usar um compressor do corpo requisição
@@ -42,66 +34,57 @@ app.use(express.static(path.join(__dirname + '/public')));
 app.set('view engine', 'ejs');
 
 //Rota principal
-app.get('/', (req, res) => {
-    //Chamada da função getDate
-    const today = date.getDate();
+app.get('/', async (req, res) => {
 
-    //Renderização com parametros EJS
-    res.render('list', {
-        today: today,
-        newListItem: listItems,
-        listTittle: "Home"
-    });
-})
+    try {
+        //Chamada da função getDate
+        const today = date.getDate();
+        
+        /*Busca no banco de dados todos as listas. Retornando a aplicação
+        um array de objetos. Na Pagina EJS de renderizacão somente add no indice o ".name"
+        */
+        const item = await Items.find({});
 
-//Rota Work
-app.get('/trabalho', (req,res) => {
-    const today = getDate();
+        //Renderização com parametros EJS
+        res.render('list', {
+            today: today,
+            newListItem: item,
+            listTittle: "Home"
+        });
 
-    //Renderização com parametros EJS
-    res.render('list', {
-        today: today,
-        newListItem: workList,
-        listTittle: "Work",
-    })
-})
+    } catch (error) {
 
+        console.log('erro na rota "/" ', error);
 
-//Post Home
-app.post('/', (req, res) => {
-    //Armazenamento dos dados do corpo da requisição
-    const data = req.body.todoInput;
-    const debug = req.body
-    const buttonValue = req.body.button;
-    console.log(debug)
-
-    if(buttonValue === "Work"){
-        //Adicionar dados em uma array
-        workList.push(data);
-
-        //Redirecionamento
-        res.redirect('/trabalho');
-    } else {
-        //Adicionar dados em uma array.
-        listItems.push(data);
-
-        //redirecionamento
-        res.redirect('/')
     }
 
 })
 
-//Post Work
-app.post('/post', (req, res) => {
-    //Armazenamento dos dadosdo corpo da requisição.
-    const data = req.body.todoInput;
 
-    //adicionar dados em uma array.
-    workList.push(data);
-    //redicerionamento
+//Post Home
+app.post('/', async (req, res) => {
+     
+    try {
+        //Armazenamento dos dados do corpo da requisição
+        const data = req.body.todoInput;
+        const debug = req.body
+        const buttonValue = req.body.button;
+        //Vendo o que está chegando nos dados
+        console.log(debug)
 
-    res.redirect('/trabalho');
+        //Enviando dados para o Banco de dados.
+        await Items.create({ name: data });
+
+        //Após inserção dos dados, redireciona para a pagina principal
+        res.redirect('/');
+        
+    } catch (error) {
+
+        console.log('Erro no envio dos dados', error);
+
+    } 
 })
+
 app.listen(port, () => {
     console.log(`Servidor rodando na porta ${port}`);
 })
