@@ -5,7 +5,7 @@
             <h3> <%= listTittle %> </h3>
             <div class="box">
                 
-                <% newListItem.forEach( obj => { %>
+                <% newList.forEach( obj => { %>
                     <form action="/delete" method="post">
                         <div class="item">
 
@@ -20,7 +20,7 @@
 
             <form class="form" action="/" method="post">
                 <input type="text" name="todoInput" id="todo-input" placeholder="Digite seu TODO">
-                <button type="submit" name="button" value=<%= listTittle %>>Enviar</button>
+                <button type="submit" name="button">Enviar</button>
             </form>
     
         </div>

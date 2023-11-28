@@ -5,14 +5,24 @@
         <h1> <%= today %> </h1>
         <h3> <%= listTittle %> </h3>
         
+        <% items.forEach( (obj) => { %>
+            <form action="/delete" method="post">
+                <div class="item">
+
+                    <input type="checkbox" name="checkbox" value="<%= obj._id %>" onchange="this.form.submit()">
+                    <a > <%= obj.name %> </a>
+                             
+                </div>
+            </form>
+        <% }) %>
 
         <form class="form" action="/" method="post">
             <input type="text" name="todoInput" id="todo-input" placeholder="Digite seu TODO">
-            <button type="submit" name="button" value=<%= listTittle %>>Enviar</button>
+            <button type="submit" name="button">Enviar</button>
         </form>
 
-        <button >
-            <a href="/">Voltar</a>
-        </button>
+        <a href="/">
+            <button type="click">Voltar</button>
+        </a>
 
 <%- include('footer'); -%>

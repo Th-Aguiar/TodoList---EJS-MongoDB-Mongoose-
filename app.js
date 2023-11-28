@@ -19,9 +19,18 @@ const itemsSchema = new mongoose.Schema({
     }
 })
 
+const listSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true
+    },
+    items: [itemsSchema]
+})
+
 //Criação da coleção
 const Items = mongoose.model('Items', itemsSchema);
 
+const Lists = mongoose.model('Lists', listSchema);
 
 //Usar um compressor do corpo requisição
 //Parser interno do Express
@@ -43,12 +52,12 @@ app.get('/', async (req, res) => {
         /*Busca no banco de dados todos as listas. Retornando a aplicação
         um array de objetos. Na Pagina EJS de renderizacão somente add no indice o ".name"
         */
-        const item = await Items.find({});
+        const list = await Lists.find({});
 
         //Renderização com parametros EJS
         res.render('list', {
             today: today,
-            newListItem: item,
+            newList: list,
             listTittle: "Home"
         });
 
@@ -60,7 +69,7 @@ app.get('/', async (req, res) => {
 
 })
 
-//Adicionar item
+//Adicionar Listas
 app.post('/', async (req, res) => {
      
     try {
@@ -72,8 +81,8 @@ app.post('/', async (req, res) => {
         console.log(debug)
 
         //Enviando dados para o Banco de dados.
-        await Items.create({ name: dataInput });
-
+        //await Items.create({ name: dataInput });
+        await Lists.create({name: dataInput, items: []});
         //Após inserção dos dados, redireciona para a pagina principal
         res.redirect('/');
         
@@ -84,15 +93,15 @@ app.post('/', async (req, res) => {
     } 
 })
 
-//Deletar itens
+//Deletar Listas
 app.post('/delete', async (req,res) => {
     try {
         //Captura do id do Input(Checkbox)
-        const idItemChecked = req.body.checkbox;
-        const itemRemoved = await Items.findByIdAndDelete({_id: idItemChecked});
+        const idListChecked = req.body.checkbox;
+        const ListRemoved = await Lists.findByIdAndDelete({_id: idListChecked});
         
         //Procurar ID e deletar no banco de dados e validação
-        if(!itemRemoved){
+        if(!ListRemoved){
 
             console.log(`${itemRemoved} não foi encontrado, ocorreu algum erro e verificaremos.`);
 
@@ -114,26 +123,30 @@ app.post('/delete', async (req,res) => {
 //Endereço dinâmico
 app.get('/:listSelected', async (req, res) => {
     try {
-        //Captura do parametro
         const paramCatched = req.params.listSelected;
-        console.log(paramCatched);
     
-        //pesquisa da coleção no banco de dados
-        const collection = await Items.findById({_id: paramCatched});
-        console.log(collection);
+        console.log('Capturado o id', paramCatched);
     
+        const list = await Lists.findById({ _id: paramCatched});
+
+        console.log('lista selecionada' , list);
+        console.log('Teste de seleção dos items', list.items);
+
+        // res.redirect('/');
+        //ate aqui em cima ok
+        
         //Chamada da função getDate
         const today = date.getDate();
-    
-        res.render("listSelected", {
+
+        res.render('listSelected', {
             today: today,
-            listTittle: collection.name
-        })
-        
+            items: list.items,
+            listTittle: list.name
+        });
+
     } catch (error) {
-        console.log('algum erro ocorreu');
-        mongoose.connection.close() 
-    }
+        console.log('erro na rota dinamica analisar o seguinte erro' , error);
+    } 
 })
 
 
