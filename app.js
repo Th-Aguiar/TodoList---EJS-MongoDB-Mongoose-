@@ -122,34 +122,58 @@ app.post('/delete', async (req,res) => {
 
 //Endereço dinâmico
 app.get('/:listSelected', async (req, res) => {
+    const paramCatched = req.params.listSelected;
+    
     try {
-        const paramCatched = req.params.listSelected;
     
-        console.log('Capturado o id', paramCatched);
+        console.log('Capturado o NAME:', paramCatched);
     
-        const list = await Lists.findById({ _id: paramCatched});
+        const list = await Lists.findOne({ name: paramCatched}).exec();
+        
+        if(!list){
 
-        console.log('lista selecionada' , list);
-        console.log('Teste de seleção dos items', list.items);
+            console.log('LISTA NAO ACHADA')
+
+        } else{
+            console.log('lista selecionada' , list);
+            console.log('Teste de seleção dos items', list.items);
+
+            res.render('listSelected', {
+                items: list.items,
+                listTittle: list.name
+            });
+        }
 
         // res.redirect('/');
-        //ate aqui em cima ok
-        
-        //Chamada da função getDate
-        const today = date.getDate();
-
-        res.render('listSelected', {
-            today: today,
-            items: list.items,
-            listTittle: list.name
-        });
 
     } catch (error) {
         console.log('erro na rota dinamica analisar o seguinte erro' , error);
     } 
 })
 
+app.post('/:listSelected', async (req,res) => {
+    const paramCatched = req.params.listSelected;
+    console.log('Parametro solicitado:', paramCatched)
 
+    try{
+        const dataInput = req.body.todoInput;
+        //Vendo os dados
+        console.log('Dados da lista dinamica:' + dataInput);
+        
+        //Capturar uma lista para inserir o dado
+        const resultList = await Lists.findOne({name: paramCatched});
+
+        //Adicionar um dado em um array
+        resultList.items.push({name: dataInput})
+        await resultList.save();
+        console.log('Dado adicionado com sucesso')
+
+        //Redirecionando para a página
+        res.redirect('/' + paramCatched)
+    }catch(error){
+        console.log('Error na hora de enviar itens na lista personalizada', error);
+    }
+})
 //Levantamento do servidor
 app.listen(port, () => {
     console.log(`Servidor rodando na porta ${port}`);
