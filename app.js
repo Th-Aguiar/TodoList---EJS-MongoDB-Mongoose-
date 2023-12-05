@@ -93,25 +93,50 @@ app.post('/', async (req, res) => {
     } 
 })
 
-//Deletar Listas
+//Requisição de deletar tanto uma lista quanto o item de uma lista
 app.post('/delete', async (req,res) => {
     try {
         //Captura do id do Input(Checkbox)
-        const idListChecked = req.body.checkbox;
-        const ListRemoved = await Lists.findByIdAndDelete({_id: idListChecked});
-        
-        //Procurar ID e deletar no banco de dados e validação
-        if(!ListRemoved){
+        const checkbox = req.body;
+        const listName = req.body.listName;
 
-            console.log(`${itemRemoved} não foi encontrado, ocorreu algum erro e verificaremos.`);
+        //Verificação de qual Página estamos - Home ou Dinamica
+        if(checkbox.home){
 
-        } else {
+            //Método de Deletar uma lista
+            const listRemoved = await Lists.findByIdAndDelete({_id: checkbox.home});
+            
+            //Procurar ID e deletar no banco de dados e validação
+            if(!listRemoved){
+    
+                console.log(`${listRemoved} não foi encontrado, ocorreu algum erro e verificaremos.`);
+    
+            } else {
+    
+                //Redirecionamento da pagina após a deletação
+                console.log('item deletado com sucesso');
+                res.redirect('/');
+    
+            }
 
-            //Redirecionamento da pagina após a deletação
-            console.log('item deletado com sucesso');
-            res.redirect('/');
+        } else{
+            
+            //Método de deletar items de uma lista no Banco de dados
+           const itemRemoved = await Lists.findOneAndUpdate({name: listName}, {$pull: {items: {_id: checkbox.items}}});
 
+           //Verificação e redirecionamento
+            if(!itemRemoved){
+
+                console.log(`${itemRemoved} não foi encontrado`);
+
+            }else{
+
+                //Redirecionamento da página após a remoção
+                console.log('item deletado com sucesso');
+                res.redirect('/' + listName);
+            }
         }
+
         
   
     } catch (error) {
@@ -137,6 +162,8 @@ app.get('/:listSelected', async (req, res) => {
         } else{
             console.log('lista selecionada' , list);
             console.log('Teste de seleção dos items', list.items);
+            
+
 
             res.render('listSelected', {
                 items: list.items,
@@ -174,6 +201,7 @@ app.post('/:listSelected', async (req,res) => {
         console.log('Error na hora de enviar itens na lista personalizada', error);
     }
 })
+
 //Levantamento do servidor
 app.listen(port, () => {
     console.log(`Servidor rodando na porta ${port}`);
