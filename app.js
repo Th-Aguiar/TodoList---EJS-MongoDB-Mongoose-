@@ -95,54 +95,40 @@ app.post('/', async (req, res) => {
 
 //Requisição de deletar tanto uma lista quanto o item de uma lista
 app.post('/delete', async (req,res) => {
-    try {
-        //Captura do id do Input(Checkbox)
-        const checkbox = req.body;
-        const listName = req.body.listName;
+    //Captura do id do Input(Checkbox)
+    const checkbox = req.body;
+    const listName = req.body.listName;
 
-        //Verificação de qual Página estamos - Home ou Dinamica
-        if(checkbox.home){
-
-            //Método de Deletar uma lista
-            const listRemoved = await Lists.findByIdAndDelete({_id: checkbox.home});
-            
+    //Verificação de qual Página estamos - Home ou Dinamica
+    if(checkbox.home){
+        //Método de Deletar uma lista
+        try{
             //Procurar ID e deletar no banco de dados e validação
-            if(!listRemoved){
-    
-                console.log(`${listRemoved} não foi encontrado, ocorreu algum erro e verificaremos.`);
-    
-            } else {
-    
-                //Redirecionamento da pagina após a deletação
-                console.log('item deletado com sucesso');
-                res.redirect('/');
-    
-            }
+            await Lists.findByIdAndDelete({_id: checkbox.home});
 
-        } else{
-            
-            //Método de deletar items de uma lista no Banco de dados
-           const itemRemoved = await Lists.findOneAndUpdate({name: listName}, {$pull: {items: {_id: checkbox.items}}});
+            //Redirecionamento da pagina após a deletação
+            console.log('item deletado com sucesso');
+            res.redirect('/');
 
-           //Verificação e redirecionamento
-            if(!itemRemoved){
+        } catch(error){
 
-                console.log(`${itemRemoved} não foi encontrado`);
+            console.log(`${listRemoved} não foi encontrado, ocorreu algum erro e verificaremos.`);
 
-            }else{
-
-                //Redirecionamento da página após a remoção
-                console.log('item deletado com sucesso');
-                res.redirect('/' + listName);
-            }
         }
 
-        
-  
-    } catch (error) {
-        console.log('erro na hora de deletar o item do banco de dados', error);
-    }
-
+    } else {
+        try {
+            //Método de deletar items de uma lista no Banco de dados
+           await Lists.findOneAndUpdate({name: listName}, {$pull: {items: {_id: checkbox.items}}});
+           
+           //Redirecionamento da página após a remoção
+           console.log('item deletado com sucesso');
+           res.redirect('/' + listName);
+        } catch (error) {
+            
+            console.log(`${itemRemoved} não foi encontrado`);
+        }
+    } 
 })
 
 //Endereço dinâmico
